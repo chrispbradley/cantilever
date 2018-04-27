@@ -1,5 +1,5 @@
 !> Main program
-PROGRAM CANTILEVEREXAMPLE
+PROGRAM CantileverExample
 
   USE OpenCMISS
   USE OpenCMISS_Iron
@@ -61,7 +61,8 @@ PROGRAM CANTILEVEREXAMPLE
   TYPE(cmfe_BasisType) :: DisplacementBasis,PressureBasis
   TYPE(cmfe_BoundaryConditionsType) :: BoundaryConditions
   TYPE(cmfe_ComputationEnvironmentType) :: computationEnvironment
-  TYPE(cmfe_CoordinateSystemType) :: CoordinateSystem, WorldCoordinateSystem
+  TYPE(cmfe_ContextType) :: context
+  TYPE(cmfe_CoordinateSystemType) :: CoordinateSystem
   TYPE(cmfe_MeshType) :: Mesh
   TYPE(cmfe_DecompositionType) :: Decomposition
   TYPE(cmfe_EquationsType) :: Equations
@@ -95,8 +96,11 @@ PROGRAM CANTILEVEREXAMPLE
 #endif
 
   !Intialise cmiss
-  CALL cmfe_Initialise(WorldCoordinateSystem,WorldRegion,Err)
-  CALL cmfe_ErrorHandlingModeSet(CMFE_ERRORS_TRAP_ERROR,Err)
+  CALL cmfe_Context_Initialise(context,err)
+  CALL cmfe_Initialise(context,err)
+  CALL cmfe_ErrorHandlingModeSet(CMFE_ERRORS_TRAP_ERROR,err)
+  CALL cmfe_Region_Initialise(worldRegion,err)
+  CALL cmfe_Context_WorldRegionGet(context,worldRegion,err)
   CALL cmfe_OutputSetOn("Cantilever",Err)
 
   !Read in arguments and overwrite default values
@@ -165,6 +169,7 @@ PROGRAM CANTILEVEREXAMPLE
 
   !Get the number of computational nodes and this computational node number
   CALL cmfe_ComputationEnvironment_Initialise(computationEnvironment,err)
+  CALL cmfe_Context_ComputationEnvironmentGet(context,computationEnvironment,err)
   CALL cmfe_ComputationEnvironment_NumberOfWorldNodesGet(computationEnvironment,numberOfComputationalNodes,err)
   CALL cmfe_ComputationEnvironment_WorldNodeNumberGet(computationEnvironment,computationalNodeNumber,err)
 
@@ -172,7 +177,7 @@ PROGRAM CANTILEVEREXAMPLE
 
   !Create a 3D rectangular cartesian coordinate system
   CALL cmfe_CoordinateSystem_Initialise(CoordinateSystem,Err)
-  CALL cmfe_CoordinateSystem_CreateStart(CoordinateSystemUserNumber,CoordinateSystem,Err)
+  CALL cmfe_CoordinateSystem_CreateStart(CoordinateSystemUserNumber,context,CoordinateSystem,Err)
   CALL cmfe_CoordinateSystem_CreateFinish(CoordinateSystem,Err)
 
   !Create a region and assign the coordinate system to the region
@@ -184,7 +189,7 @@ PROGRAM CANTILEVEREXAMPLE
 
   !Define basis function for displacement
   CALL cmfe_Basis_Initialise(DisplacementBasis,Err)
-  CALL cmfe_Basis_CreateStart(DisplacementBasisUserNumber,DisplacementBasis,Err)
+  CALL cmfe_Basis_CreateStart(DisplacementBasisUserNumber,context,DisplacementBasis,Err)
   SELECT CASE(DisplacementInterpolationType)
   CASE(1,2,3,4)
     CALL cmfe_Basis_TypeSet(DisplacementBasis,CMFE_BASIS_LAGRANGE_HERMITE_TP_TYPE,Err)
@@ -202,7 +207,7 @@ PROGRAM CANTILEVEREXAMPLE
   IF(PressureMeshComponent/=1) THEN
     !Basis for pressure
     CALL cmfe_Basis_Initialise(PressureBasis,Err)
-    CALL cmfe_Basis_CreateStart(PressureBasisUserNumber,PressureBasis,Err)
+    CALL cmfe_Basis_CreateStart(PressureBasisUserNumber,context,PressureBasis,Err)
     SELECT CASE(PressureInterpolationType)
     CASE(1,2,3,4)
       CALL cmfe_Basis_TypeSet(PressureBasis,CMFE_BASIS_LAGRANGE_HERMITE_TP_TYPE,Err)
@@ -344,7 +349,7 @@ PROGRAM CANTILEVEREXAMPLE
 
   !Define the problem
   CALL cmfe_Problem_Initialise(Problem,Err)
-  CALL cmfe_Problem_CreateStart(ProblemUserNumber,[CMFE_PROBLEM_ELASTICITY_CLASS,CMFE_PROBLEM_FINITE_ELASTICITY_TYPE, &
+  CALL cmfe_Problem_CreateStart(ProblemUserNumber,context,[CMFE_PROBLEM_ELASTICITY_CLASS,CMFE_PROBLEM_FINITE_ELASTICITY_TYPE, &
     & CMFE_PROBLEM_NO_SUBTYPE],Problem,Err)
   CALL cmfe_Problem_CreateFinish(Problem,Err)
 
@@ -421,7 +426,7 @@ PROGRAM CANTILEVEREXAMPLE
   CALL cmfe_Fields_ElementsExport(Fields,"./results/Cantilever","FORTRAN",Err)
   CALL cmfe_Fields_Finalise(Fields,Err)
 
-  CALL cmfe_Finalise(Err)
+  CALL cmfe_Finalise(context,Err)
 
   WRITE(*,'(A)') "Program successfully completed."
 
@@ -436,5 +441,5 @@ CONTAINS
     STOP
   END SUBROUTINE HANDLE_ERROR
 
-END PROGRAM CANTILEVEREXAMPLE
+END PROGRAM CantileverExample
 
