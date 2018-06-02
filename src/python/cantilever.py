@@ -61,7 +61,7 @@ coordinateSystem.CreateFinish()
 
 # Create a region and assign the coordinate system to the region
 region = iron.Region()
-region.CreateStart(regionUserNumber,iron.WorldRegion)
+region.CreateStart(regionUserNumber,worldRegion)
 region.LabelSet("Region")
 region.coordinateSystem = coordinateSystem
 region.CreateFinish()
@@ -121,7 +121,7 @@ decomposition.CreateFinish()
 # Create a field for the geometry
 geometricField = iron.Field()
 geometricField.CreateStart(geometricFieldUserNumber,region)
-geometricField.MeshDecompositionSet(decomposition)
+geometricField.DecompositionSet(decomposition)
 geometricField.TypeSet(iron.FieldTypes.GEOMETRIC)
 geometricField.VariableLabelSet(iron.FieldVariableTypes.U,"Geometry")
 geometricField.ComponentMeshComponentSet(iron.FieldVariableTypes.U,1,1)
@@ -138,7 +138,7 @@ generatedMesh.GeometricParametersCalculate(geometricField)
 fibreField = iron.Field()
 fibreField.CreateStart(fibreFieldUserNumber,region)
 fibreField.TypeSet(iron.FieldTypes.FIBRE)
-fibreField.MeshDecompositionSet(decomposition)
+fibreField.DecompositionSet(decomposition)
 fibreField.GeometricFieldSet(geometricField)
 fibreField.VariableLabelSet(iron.FieldVariableTypes.U,"Fibre")
 if InterpolationType == 4:
