@@ -22,6 +22,7 @@ pressureBasisUserNumber = 2
 generatedMeshUserNumber = 1
 meshUserNumber = 1
 decompositionUserNumber = 1
+decomposerUserNumber = 1
 geometricFieldUserNumber = 1
 fibreFieldUserNumber = 2
 materialFieldUserNumber = 3
@@ -50,8 +51,11 @@ else:
 # Get the number of computational nodes and this computational node number
 computationEnvironment = iron.ComputationEnvironment()
 iron.Context.ComputationEnvironmentGet(computationEnvironment)
-numberOfComputationalNodes = computationEnvironment.NumberOfWorldNodesGet()
-computationalNodeNumber = computationEnvironment.WorldNodeNumberGet()
+
+worldWorkGroup = iron.WorkGroup()
+computationEnvironment.WorldWorkGroupGet(worldWorkGroup)
+numberOfComputationalNodes = worldWorkGroup.NumberOfGroupNodesGet()
+computationalNodeNumber = worldWorkGroup.GroupNodeNumberGet()
 
 # Create a 3D rectangular cartesian coordinate system
 coordinateSystem = iron.CoordinateSystem()
@@ -114,9 +118,13 @@ generatedMesh.CreateFinish(meshUserNumber,mesh)
 # Create a decomposition for the mesh
 decomposition = iron.Decomposition()
 decomposition.CreateStart(decompositionUserNumber,mesh)
-decomposition.type = iron.DecompositionTypes.CALCULATED
-decomposition.numberOfDomains = numberOfComputationalNodes
 decomposition.CreateFinish()
+
+# Decompose 
+decomposer = iron.Decomposer()
+decomposer.CreateStart(decomposerUserNumber,worldRegion,worldWorkGroup)
+decompositionIndex = decomposer.DecompositionAdd(decomposition)
+decomposer.CreateFinish()
 
 # Create a field for the geometry
 geometricField = iron.Field()
