@@ -231,13 +231,14 @@ equations = iron.Equations()
 equationsSet.EquationsCreateStart(equations)
 equations.sparsityType = iron.EquationsSparsityTypes.SPARSE
 equations.outputType = iron.EquationsOutputTypes.NONE
+equations.outputType = iron.EquationsOutputTypes.ELEMENT_MATRIX
 equationsSet.EquationsCreateFinish()
 
 # Define the problem
 problem = iron.Problem()
 problemSpecification = [iron.ProblemClasses.ELASTICITY,
-        iron.ProblemTypes.FINITE_ELASTICITY,
-        iron.ProblemSubtypes.NONE]
+                        iron.ProblemTypes.FINITE_ELASTICITY,
+                        iron.ProblemSubtypes.STATIC_FINITE_ELASTICITY]
 problem.CreateStart(problemUserNumber,iron.Context,problemSpecification)
 problem.CreateFinish()
 
@@ -254,6 +255,7 @@ linearSolver = iron.Solver()
 problem.SolversCreateStart()
 problem.SolverGet([iron.ControlLoopIdentifiers.NODE],1,nonLinearSolver)
 nonLinearSolver.outputType = iron.SolverOutputTypes.MONITOR
+nonLinearSolver.outputType = iron.SolverOutputTypes.MATRIX
 nonLinearSolver.NewtonJacobianCalculationTypeSet(iron.JacobianCalculationTypes.FD)
 nonLinearSolver.NewtonAbsoluteToleranceSet(1e-14)
 nonLinearSolver.NewtonSolutionToleranceSet(1e-14)
@@ -293,6 +295,11 @@ boundaryConditions.AddNode(dependentField,iron.FieldVariableTypes.U,1,1,1,3,iron
 boundaryConditions.AddNode(dependentField,iron.FieldVariableTypes.U,1,1,3,3,iron.BoundaryConditionsTypes.FIXED,0.0)
 boundaryConditions.AddNode(dependentField,iron.FieldVariableTypes.U,1,1,5,3,iron.BoundaryConditionsTypes.FIXED,0.0)
 boundaryConditions.AddNode(dependentField,iron.FieldVariableTypes.U,1,1,7,3,iron.BoundaryConditionsTypes.FIXED,0.0)
+
+# Set z=0 nodes to no y displacement
+boundaryConditions.AddNode(dependentField,iron.FieldVariableTypes.U,1,1,6,3,iron.BoundaryConditionsTypes.FIXED,-5.0)
+boundaryConditions.AddNode(dependentField,iron.FieldVariableTypes.U,1,1,8,3,iron.BoundaryConditionsTypes.FIXED,-5.0)
+
 solverEquations.BoundaryConditionsCreateFinish()
 
 # Solve the problem
