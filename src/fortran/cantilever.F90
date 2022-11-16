@@ -31,6 +31,7 @@ PROGRAM CantileverExample
   REAL(CMISSRP), PARAMETER :: Gravity(3)=[0.0_CMISSRP,0.0_CMISSRP,-9.8_CMISSRP] !in m s^-2
   INTEGER(CMISSIntg), PARAMETER :: NumberOfLoadIncrements=2
 
+  INTEGER(CMISSIntg), PARAMETER :: ContextUserNumber=1
   INTEGER(CMISSIntg), PARAMETER :: CoordinateSystemUserNumber=1
   INTEGER(CMISSIntg), PARAMETER :: RegionUserNumber=1
   INTEGER(CMISSIntg), PARAMETER :: DisplacementBasisUserNumber=1
@@ -98,13 +99,15 @@ PROGRAM CantileverExample
   IF(.NOT.QUICKWIN_STATUS) QUICKWIN_STATUS=SETWINDOWCONFIG(QUICKWIN_WINDOW_CONFIG)
 #endif
 
-  !Intialise cmiss
-  CALL cmfe_Context_Initialise(context,err)
-  CALL cmfe_Initialise(context,err)
+  !Intialise OpenCMISS
+  CALL cmfe_Initialise(err)
   CALL cmfe_ErrorHandlingModeSet(CMFE_ERRORS_TRAP_ERROR,err)
+  CALL cmfe_OutputSetOn("Cantilever",Err)
+  !Intialise OpenCMISS
+  CALL cmfe_Context_Initialise(context,err)
+  CALL cmfe_Context_Create(ContextUserNumber,context,err)
   CALL cmfe_Region_Initialise(worldRegion,err)
   CALL cmfe_Context_WorldRegionGet(context,worldRegion,err)
-  CALL cmfe_OutputSetOn("Cantilever",Err)
 
   !Read in arguments and overwrite default values
   !Usage: CantileverExample [Displacement Interpolation Type] [X elements] [Y elements] [Z elements] [Scaling Type]
@@ -436,7 +439,10 @@ PROGRAM CantileverExample
   CALL cmfe_Fields_ElementsExport(Fields,"./results/Cantilever","FORTRAN",Err)
   CALL cmfe_Fields_Finalise(Fields,Err)
 
-  CALL cmfe_Finalise(context,Err)
+  !Destroy the context
+  CALL cmfe_Context_Destroy(context,err)
+  !Finalise OpenCMISS
+  CALL cmfe_Finalise(err)
 
   WRITE(*,'(A)') "Program successfully completed."
 

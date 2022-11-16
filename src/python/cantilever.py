@@ -15,6 +15,7 @@ gravity=[0.0,0.0,-9.81] #in m s^-2
 usePressureBasis = False
 NumberOfGaussXi = 2
 
+contextUserNumber = 1
 coordinateSystemUserNumber = 1
 regionUserNumber = 1
 basisUserNumber = 1
@@ -32,8 +33,11 @@ equationsSetFieldUserNumber = 6
 equationsSetUserNumber = 1
 problemUserNumber = 1
 
+context = iron.Context()
+context.Create(contextUserNumber)
+
 worldRegion = iron.Region()
-iron.Context.WorldRegionGet(worldRegion)
+context.WorldRegionGet(worldRegion)
 
 # Set all diganostic levels on for testing
 #iron.DiagnosticsSetOn(iron.DiagnosticTypes.All,[1,2,3,4,5],"Diagnostics",["DOMAIN_MAPPINGS_LOCAL_FROM_GLOBAL_CALCULATE"])
@@ -50,7 +54,7 @@ else:
 
 # Get the number of computational nodes and this computational node number
 computationEnvironment = iron.ComputationEnvironment()
-iron.Context.ComputationEnvironmentGet(computationEnvironment)
+context.ComputationEnvironmentGet(computationEnvironment)
 
 worldWorkGroup = iron.WorkGroup()
 computationEnvironment.WorldWorkGroupGet(worldWorkGroup)
@@ -59,7 +63,7 @@ computationalNodeNumber = worldWorkGroup.GroupNodeNumberGet()
 
 # Create a 3D rectangular cartesian coordinate system
 coordinateSystem = iron.CoordinateSystem()
-coordinateSystem.CreateStart(coordinateSystemUserNumber,iron.Context)
+coordinateSystem.CreateStart(coordinateSystemUserNumber,context)
 coordinateSystem.DimensionSet(3)
 coordinateSystem.CreateFinish()
 
@@ -72,7 +76,7 @@ region.CreateFinish()
 
 # Define basis
 basis = iron.Basis()
-basis.CreateStart(basisUserNumber,iron.Context)
+basis.CreateStart(basisUserNumber,context)
 if InterpolationType in (1,2,3,4):
     basis.type = iron.BasisTypes.LAGRANGE_HERMITE_TP
 elif InterpolationType in (7,8,9):
@@ -86,7 +90,7 @@ basis.CreateFinish()
 if(usePressureBasis):
     # Define pressure basis
     pressureBasis = iron.Basis()
-    pressureBasis.CreateStart(pressureBasisUserNumber,iron.Context)
+    pressureBasis.CreateStart(pressureBasisUserNumber,context)
     if InterpolationType in (1,2,3,4):
         pressureBasis.type = iron.BasisTypes.LAGRANGE_HERMITE_TP
     elif InterpolationType in (7,8,9):
@@ -239,7 +243,7 @@ problem = iron.Problem()
 problemSpecification = [iron.ProblemClasses.ELASTICITY,
                         iron.ProblemTypes.FINITE_ELASTICITY,
                         iron.ProblemSubtypes.STATIC_FINITE_ELASTICITY]
-problem.CreateStart(problemUserNumber,iron.Context,problemSpecification)
+problem.CreateStart(problemUserNumber,context,problemSpecification)
 problem.CreateFinish()
 
 # Create the problem control loop
