@@ -353,7 +353,7 @@ PROGRAM CantileverExample
   CALL OC_Problem_SolversCreateStart(problem,err)
   CALL OC_Problem_SolverGet(problem,OC_CONTROL_LOOP_NODE,1,solver,err)
   CALL OC_Solver_OutputTypeSet(solver,OC_SOLVER_PROGRESS_OUTPUT,err)
-  CALL OC_Solver_NewtonJacobianCalculationTypeSet(solver,OC_SOLVER_NEWTON_JACOBIAN_FD_CALCULATED,err)
+  CALL OC_Solver_NewtonJacobianCalculationTypeSet(solver,OC_SOLVER_NEWTON_JACOBIAN_EQUATIONS_CALCULATED,err)
   CALL OC_Solver_NewtonAbsoluteToleranceSet(solver,1.0E-14_OC_RP,err)
   CALL OC_Solver_NewtonSolutionToleranceSet(solver,1.0E-14_OC_RP,err)
   CALL OC_Solver_NewtonRelativeToleranceSet(solver,1.0E-14_OC_RP,err)
@@ -380,7 +380,7 @@ PROGRAM CantileverExample
   !Fix x=0 nodes in x, y and z
   DO nodeIdx=1,SIZE(leftSurfaceNodes,1)
     nodeNumber=leftSurfaceNodes(nodeIdx)
-    CALL OC_Decomposition_NodeDomainGet(decomposition,nodeNumber,1,nodeDomain,err)
+    CALL OC_Decomposition_NodeDomainGet(decomposition,1,nodeNumber,nodeDomain,err)
     IF(nodeDomain==computationalNodeNumber) THEN
       DO componentIdx=1,3
         CALL OC_BoundaryConditions_AddNode(boundaryConditions,dependentField,OC_FIELD_U_VARIABLE_TYPE,1,1,nodeNumber, &
